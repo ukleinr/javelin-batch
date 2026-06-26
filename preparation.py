@@ -16,7 +16,7 @@ Description:
 Directory Structure Created:
     - ../jav_data / _sessions
     - ../results / _sessions
-    - ../light_curves / _backup
+    - ../light_curves / _versions
 ===============================================================================
 """
 
@@ -46,7 +46,7 @@ config_content = u"""[paths]
 cont_pattern = ../jav_data/*_cont*.dat
 line_pattern = ../jav_data/*_line*.dat
 chains_path = ../jav_data/chains_run1/
-log_path = logs/run1.log
+log_path = ../jav_data/logs/run1.log
 
 [mcmc]
 n_walkers = 100
@@ -54,7 +54,7 @@ n_burn = 500
 n_chain = 500
 lag_limit_min = 0
 lag_limit_max = 10
-n_iter = 1
+n_iter = 50
 """
 
 # ==========================================
@@ -96,12 +96,22 @@ txt_files = glob.glob(search_pattern)
 if not txt_files:
     print("No .txt files found to process in {}".format(input_dir))
 else:
+    # JAVELIN needs both a continuum (_cont) and a line (_line) light curve.
+    names = [os.path.basename(f) for f in txt_files]
+    if not any("_cont" in n for n in names):
+        print("WARNING: no '*_cont*' file found - JAVELIN needs a continuum light curve.")
+    if not any("_line" in n for n in names):
+        print("WARNING: no '*_line*' file found - JAVELIN needs a line light curve.")
+
     for txt_file in txt_files:
         base_name = os.path.basename(txt_file)
         stem = os.path.splitext(base_name)[0]
         dat_file = os.path.join(output_dir, stem + ".dat")
 
         try:
+            n_data = 0   # data rows written
+            n_bad = 0    # rows that are not "3 numeric columns"
+
             # Using io.open for Python 2/3 encoding and newline compatibility
             with io.open(txt_file, "r", encoding="utf-8") as f_in, \
                     io.open(dat_file, "w", encoding="utf-8", newline=u"\n") as f_out:
@@ -113,10 +123,26 @@ else:
                     if not line or line.startswith(u"#"):
                         continue
 
+                    # Expect exactly 3 numeric columns: MJD, flux/mag, error
+                    cols = line.split()
+                    n_data += 1
+                    if len(cols) != 3:
+                        n_bad += 1
+                    else:
+                        try:
+                            [float(c) for c in cols]
+                        except ValueError:
+                            n_bad += 1
+
                     # Write clean data line
                     f_out.write(line + u"\n")
 
             print("Converted: {} -> {}".format(base_name, os.path.basename(dat_file)))
+            if n_data == 0:
+                print("  WARNING: {} has no data rows.".format(base_name))
+            elif n_bad:
+                print("  WARNING: {} has {}/{} rows that are not 3 numeric columns "
+                      "(MJD, flux, error).".format(base_name, n_bad, n_data))
 
         except Exception as e:
             print("Failed to process {}: {}".format(base_name, e))

@@ -151,8 +151,19 @@ python2 hist-tuner.py
     - Adjust `x_min`, `x_max`, and `bins` (histogram resolution)
     - `lag_peak` — position of the vertical red line (peak marker)
 3. **Preview:** Click `Plot hist`. A plot window will appear. Close it, adjust the values, and repeat until the plot looks right.
-4. **Style:** You can set custom colors using HEX codes, for example `#601fb4`.
+4. **Style:** You can set custom colors using HEX codes, for example `#601fb4` (`hist_color`) and `#ff0000` (`line_color`).
 5. **Save:** Click `Save config`. The settings will be written to **`hist.ini`**.
+
+> 🧩 **Shared rendering:** The tuner and the batch exporter share one module
+> (`histlib.py`) for both the `hist.ini` schema and the plotting code, so the
+> live preview is guaranteed to match the exported PNGs. Colors set in the GUI
+> are now persisted to `[Style]` and reused by `chains2hist.py` (older
+> `hist.ini` files using a `[Data] column_number` section are still read).
+>
+> `hist.ini` sections: `[Path]` (data_dir, file_pattern, output_dir),
+> `[Plot]` (column, bins, x_min/x_max/y_min/y_max, dpi — axis limits may be
+> fractional), `[Annotations]` (labels, lag_peak, font sizes),
+> `[Style]` (yaxis_right, hist_color, line_color).
 
 ---
 
@@ -179,10 +190,11 @@ After the full workflow, your project folder should look like this:
  │    ├── run-javelin.py
  │    ├── hist-tuner.py
  │    ├── chains2hist.py
+ │    ├── histlib.py            <-- Shared hist.ini schema + plotting
  │    └── hist.ini              <-- Your saved plotting preset
  │
  ├── 📁 light_curves/
- │    ├── 📁 _backup/           <-- Backup copies of raw data
+ │    ├── 📁 _versions/         <-- Backup copies of raw data
  │    ├── start1.cfg            <-- Your MCMC config files
  │    ├── my_obj_cont.txt
  │    └── my_obj_line.txt

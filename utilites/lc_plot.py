@@ -32,13 +32,11 @@ def main():
 
     # Check if files were found
     if not cont_files:
-        print
-        "Error: No continuum files found matching pattern: %s" % cont_pattern
+        print("Error: No continuum files found matching pattern: %s" % cont_pattern)
         sys.exit(1)
 
     if not line_files:
-        print
-        "Error: No emission line files found matching pattern: %s" % line_pattern
+        print("Error: No emission line files found matching pattern: %s" % line_pattern)
         sys.exit(1)
 
     # If multiple files match, we pick the first one from the list

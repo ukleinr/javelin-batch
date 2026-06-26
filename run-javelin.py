@@ -171,11 +171,30 @@ def load_config(config_path):
     return settings
 
 
+def validate_settings(settings, config_name):
+    """Raise ValueError if MCMC parameters are nonsensical, before any work."""
+    problems = []
+    if settings['n_iter'] <= 0:
+        problems.append("n_iter must be > 0 (got %d)" % settings['n_iter'])
+    if settings['n_walkers'] <= 0:
+        problems.append("n_walkers must be > 0 (got %d)" % settings['n_walkers'])
+    if settings['n_burn'] < 0 or settings['n_chain'] <= 0:
+        problems.append("n_burn must be >= 0 and n_chain > 0 "
+                        "(got n_burn=%d, n_chain=%d)" % (settings['n_burn'], settings['n_chain']))
+    if settings['lag_limit_min'] >= settings['lag_limit_max']:
+        problems.append("lag_limit_min must be < lag_limit_max (got [%g, %g])"
+                        % (settings['lag_limit_min'], settings['lag_limit_max']))
+    if problems:
+        raise ValueError("Invalid parameters in '%s': %s" % (config_name, "; ".join(problems)))
+
+
 def run_javelin(settings, config_name):
     """Runs JAVELIN MCMC for a single configuration."""
     logger.info("=" * filler_length)
     logger.info("Running config: %s", config_name)
     logger.info("=" * filler_length)
+
+    validate_settings(settings, config_name)
 
     # --- Find input files ---
     cont_files = sorted(glob.glob(settings['cont_pattern']))
@@ -273,6 +292,10 @@ def main():
     total_start = time.time()
     results = {}
 
+    # Track output paths to warn about configs that would overwrite each other.
+    seen_chains = {}
+    seen_logs = {}
+
     # Process each configuration file sequentially
     for config_path in config_files:
         config_name = os.path.basename(config_path)
@@ -280,6 +303,15 @@ def main():
         try:
             # 1. Load settings
             settings = load_config(config_path)
+
+            # Warn (do not abort) if another config already claimed these paths.
+            for key, seen in (('chains_path', seen_chains), ('log_path', seen_logs)):
+                value = os.path.normpath(settings[key])
+                if value in seen:
+                    logger.warning("Config '%s' reuses %s='%s' from '%s' - results will be overwritten",
+                                   config_name, key, settings[key], seen[value])
+                else:
+                    seen[value] = config_name
 
             # 2. Setup dynamic log file handler for this specific config
             log_path = settings['log_path']
@@ -314,7 +346,10 @@ def main():
     logger.info("ALL CONFIGS DONE")
     logger.info("=" * filler_length)
 
-    for name, elapsed in results.items():
+    # Report in config-file order (py2 dict iteration order is not deterministic).
+    for config_path in config_files:
+        name = os.path.basename(config_path)
+        elapsed = results.get(name)
         if elapsed is not None:
             logger.info("  %s : %.2f sec", name, elapsed)
         else:
