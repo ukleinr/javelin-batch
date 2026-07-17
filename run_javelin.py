@@ -46,9 +46,11 @@ import sys
 import logging
 
 try:
-    import configparser
+    import ConfigParser as configparser  # Python 2 (target runtime)
 except ImportError:
-    import ConfigParser as configparser  # Python 2 compatibility
+    import configparser  # Python 3 fallback (insurance, not a supported target)
+
+import paths
 
 
 # ==========================================
@@ -123,10 +125,6 @@ ch = logging.StreamHandler(original_stdout)
 ch.setFormatter(console_formatter)  # Console will have colored output!
 logger.addHandler(ch)
 
-# 3. Redirect stdout and stderr to the logger
-sys.stdout = StreamToLogger(logger, logging.INFO)
-sys.stderr = StreamToLogger(logger, logging.ERROR)
-
 filler_length = 48  # '='*filler_length = '==============='
 
 # ==========================================
@@ -149,6 +147,13 @@ def print_progress(iteration, total, prefix='', suffix='', length=40, fill='▮'
     # Print New Line on Complete
     if iteration == total:
         original_stdout.write('\n')
+
+
+def _redirect_streams_to_logger():
+    """Route stray library prints into the logger. Called from main() only, so
+    importing this module (e.g. in tests) leaves sys.stdout/stderr intact."""
+    sys.stdout = StreamToLogger(logger, logging.INFO)
+    sys.stderr = StreamToLogger(logger, logging.ERROR)
 
 
 def load_config(config_path):
@@ -276,8 +281,9 @@ def run_javelin(settings, config_name):
 
 def main():
     """Main function: finds all .cfg files and processes them sequentially."""
+    _redirect_streams_to_logger()
 
-    config_dir = '../light_curves'
+    config_dir = paths.LIGHT_CURVES
     search_pattern = os.path.join(config_dir, '*.cfg')
     config_files = sorted(glob.glob(search_pattern))
 
