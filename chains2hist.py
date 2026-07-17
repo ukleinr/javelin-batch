@@ -55,6 +55,8 @@ def main():
     fig, ax = plt.subplots()
 
     # 4. Main loop over files
+    saved = 0
+    failed = 0
     for i, filepath in enumerate(files):
         filename = os.path.basename(filepath)
         print("Processing: %s" % filename)
@@ -76,12 +78,14 @@ def main():
             out_filepath = os.path.join(output_dir, out_filename)
 
             fig.savefig(out_filepath, dpi=dpi, bbox_inches='tight')
+            saved += 1
 
         except Exception as e:
+            failed += 1
             print(" -> Error reading %s: %s" % (filename, str(e)))
 
     plt.close(fig)
-    print("All images successfully saved to: %s" % os.path.abspath(output_dir))
+    print("Done: %d saved, %d failed -> %s" % (saved, failed, os.path.abspath(output_dir)))
 
 
 if __name__ == '__main__':

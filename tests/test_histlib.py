@@ -139,6 +139,46 @@ def test_missing_column_defaults_to_three():
     assert cfg["column"] == 3
 
 
+def test_missing_numeric_key_raises():
+    # A required numeric key omitted entirely has no safe default (a silent 0
+    # yields blank/degenerate plots), so loading must fail loudly and name it.
+    body = (
+        "[Path]\ndata_dir=d\nfile_pattern=*.jav\noutput_dir=o\n"
+        "[Plot]\ncolumn=3\nx_min=1\nx_max=2\ny_min=0\ny_max=9\ndpi=100\n"  # bins omitted
+        "[Annotations]\nagn_name=A\ncomment=\nx_label=x\ny_label=y\n"
+        "lag_peak=1\nlag_label=L\nlab_font_size=10\ntitle_font_size=12\n"
+        "[Style]\nyaxis_right=False\n"
+    )
+    path = _write_tmp_ini(body)
+    msg = ""
+    try:
+        try:
+            histlib.load_hist_config(path)
+            raised = False
+        except ValueError as e:
+            raised = True
+            msg = str(e)
+    finally:
+        os.remove(path)
+    assert raised, "missing 'bins' should raise ValueError"
+    assert "bins" in msg  # the offending key is named
+
+
+def test_empty_numeric_value_raises():
+    # The GUI can persist an empty field as 'bins ='; that must fail too.
+    body = CANONICAL_INI.replace("bins = 50", "bins =")
+    path = _write_tmp_ini(body)
+    try:
+        try:
+            histlib.load_hist_config(path)
+            raised = False
+        except ValueError:
+            raised = True
+    finally:
+        os.remove(path)
+    assert raised, "empty 'bins' should raise ValueError"
+
+
 # --------------------------------------------------------------------------
 # plot_histogram
 # --------------------------------------------------------------------------

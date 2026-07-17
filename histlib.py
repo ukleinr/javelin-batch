@@ -127,9 +127,20 @@ def load_hist_config(path):
                     raw = DEFAULT_HIST_COLOR
                 elif key == 'line_color':
                     raw = DEFAULT_LINE_COLOR
-                else:
-                    cfg[key] = '' if ktype == 'str' else _coerce('0', ktype)
+                elif ktype == 'str':
+                    # An empty string is a legitimate value (e.g. comment).
+                    cfg[key] = ''
                     continue
+                elif ktype == 'bool':
+                    cfg[key] = False
+                    continue
+                else:
+                    # Numeric keys (bins, dpi, axis limits, ...) have no safe
+                    # default: a silent 0 yields blank/degenerate plots. Fail
+                    # loudly with the offending key, like config.getint used to.
+                    raise ValueError(
+                        "hist.ini: missing or empty required value '%s' in [%s]"
+                        % (key, section))
 
             cfg[key] = _coerce(raw, ktype)
 
