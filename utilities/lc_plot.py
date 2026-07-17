@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime, timedelta
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import paths
+
 
 def mjd_to_datetime(mjd):
     """
@@ -20,7 +23,7 @@ def mjd_to_datetime(mjd):
 
 def main():
     # Base directory for data and output plot
-    data_dir = "../../light_curves"
+    data_dir = paths.LIGHT_CURVES
 
     # Patterns to find the files (using glob)
     cont_pattern = os.path.join(data_dir, "*_cont*.txt")

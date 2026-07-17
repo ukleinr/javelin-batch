@@ -3,6 +3,10 @@
 
 import random
 import math
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import paths
 
 
 def generate_light_curves():
@@ -24,8 +28,8 @@ def generate_light_curves():
     # Lists to store data
     cont_data = []
     line_data = []
-    cont_file = "../../light_curves/simulated_cont.txt"
-    line_file = "../../light_curves/simulated_line.txt"
+    cont_file = os.path.join(paths.LIGHT_CURVES, "simulated_cont.txt")
+    line_file = os.path.join(paths.LIGHT_CURVES, "simulated_line.txt")
 
     # Generate epochs: evening (0.83) and morning of the next day (0.17)
     for day in range(days):
