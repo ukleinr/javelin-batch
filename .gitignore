@@ -1,0 +1,16 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Generated pipeline artifacts (data dirs normally live outside the repo)
+*.dat
+*.jav
+*.png
+/jav_data/
+/results/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp

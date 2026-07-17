@@ -1,0 +1,8 @@
+# Python 2.7 target (JAVELIN v0.33, Ubuntu 18.04). Last releases supporting 2.7.
+# Verified against the ub18-jav:latest image (2026-07-17): Python 2.7.17,
+# numpy 1.16.6, matplotlib 2.2.5.
+numpy==1.16.6
+matplotlib==2.2.5
+# Tkinter is stdlib (OS package `python-tk`), not pip-installable.
+# javelin is external and built with a Fortran compiler:
+# javelin @ git+https://github.com/nye17/javelin.git@0.33
