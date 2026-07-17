@@ -20,9 +20,9 @@ display). Matplotlib is only touched through the `ax` passed by the caller.
 import re
 
 try:
-    import ConfigParser as configparser  # Python 2
+    import ConfigParser as configparser  # Python 2 (target runtime)
 except ImportError:
-    import configparser  # Python 3 fallback (not the primary target)
+    import configparser  # Python 3 fallback (insurance, not a supported target)
 
 
 # ==========================================

@@ -24,6 +24,13 @@ import matplotlib.pyplot as plt
 import histlib
 
 
+def chain_number(filename, fallback_index):
+    """Derive the chain number from the last integer in the filename; fall back
+    to str(fallback_index + 1) when the name has no digits."""
+    numbers = re.findall(r'\d+', filename)
+    return numbers[-1] if numbers else str(fallback_index + 1)
+
+
 def main():
     # 1. Load the shared, typed configuration
     cfg = histlib.load_hist_config('hist.ini')
@@ -71,8 +78,7 @@ def main():
 
             # Derive the chain number from the filename (last number), fall back
             # to the loop index. e.g. "javChain_7.jav" -> "7".
-            numbers = re.findall(r'\d+', filename)
-            file_num = numbers[-1] if numbers else str(i + 1)
+            file_num = chain_number(filename, i)
 
             out_filename = "jav_%s_lag_chain%s.png" % (agn_name, file_num)
             out_filepath = os.path.join(output_dir, out_filename)
