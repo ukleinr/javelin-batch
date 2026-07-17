@@ -7,7 +7,7 @@ Author: R. Uklein
 Environment: Python 2.7 (legacy, targets JAVELIN v0.33)
 
 Single source of truth for the `hist.ini` schema and the lag-histogram
-rendering. Both the GUI tuner (`hist-tuner.py`) and the batch renderer
+rendering. Both the GUI tuner (`hist_tuner.py`) and the batch renderer
 (`chains2hist.py`) import from here so that the interactive preview and the
 exported PNGs are guaranteed identical.
 

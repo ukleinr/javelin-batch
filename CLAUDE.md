@@ -16,9 +16,9 @@ prepares raw photometry, runs MCMC modeling in bulk, and renders lag histograms.
   This overrides the global instruction to target Python 3.8+ / Windows.
 - **Hardcoded relative paths.** The four pipeline scripts assume the current working directory is the
   object's `scripts/` folder and reference `../jav_data`, `../light_curves`, `../results` directly.
-  They must be run from inside `scripts/`. The `utilites/` scripts instead use `../../light_curves`
-  (i.e. they expect to run from `scripts/utilites/`).
-- GUI scripts (`hist-tuner.py`, `lc_plot.py`) need an X display and Tkinter; the intended host is a
+  They must be run from inside `scripts/`. The `utilities/` scripts instead use `../../light_curves`
+  (i.e. they expect to run from `scripts/utilities/`).
+- GUI scripts (`hist_tuner.py`, `lc_plot.py`) need an X display and Tkinter; the intended host is a
   Docker container (Ubuntu 18.04) with an X server (VcXsrv/Xming) on Windows. See `README.md` for the
   full Docker invocation.
 
@@ -27,9 +27,9 @@ prepares raw photometry, runs MCMC modeling in bulk, and renders lag histograms.
 1. `python2 preparation.py` — creates the directory tree, writes a default `start1.cfg` into
    `../light_curves/`, and converts raw `../light_curves/*.txt` (3 cols: MJD, flux/mag, error;
    `#` comments stripped) into `../jav_data/*.dat`.
-2. `python2 run-javelin.py` — finds **all** `../light_curves/*.cfg`, runs each sequentially. Per cfg:
+2. `python2 run_javelin.py` — finds **all** `../light_curves/*.cfg`, runs each sequentially. Per cfg:
    fits `Cont_Model`, then loops `n_iter` times producing `javChain_<n>.jav` MCMC chains in `chains_path`.
-3. `python2 hist-tuner.py` — Tkinter GUI to interactively tune one histogram; saves settings to `hist.ini`.
+3. `python2 hist_tuner.py` — Tkinter GUI to interactively tune one histogram; saves settings to `hist.ini`.
 4. `python2 chains2hist.py` — reads `hist.ini`, naturally sorts all `*.jav`, writes one PNG per chain to `output_dir`.
 
 There is no build step, test suite, linter config, or dependency manifest in this repo. Dependencies
@@ -37,7 +37,7 @@ There is no build step, test suite, linter config, or dependency manifest in thi
 
 ## Architecture notes
 
-- **`run-javelin.py` logging.** It hijacks `sys.stdout`/`sys.stderr` via `StreamToLogger` so JAVELIN's
+- **`run_javelin.py` logging.** It hijacks `sys.stdout`/`sys.stderr` via `StreamToLogger` so JAVELIN's
   internal prints land in per-config log files, while a colored console handler + a manual progress bar
   write to the saved `original_stdout`/`original_stderr` only. A `FileHandler` is added/removed per cfg
   so each config logs to its own `log_path`. `sys.stdout`/`stderr` are restored in a `finally` block —
@@ -50,7 +50,7 @@ There is no build step, test suite, linter config, or dependency manifest in thi
 ## Shared rendering & config (`histlib.py`)
 
 `histlib.py` is the single source of truth for both the `hist.ini` schema and the lag-histogram
-rendering. `hist-tuner.py` (GUI preview) and `chains2hist.py` (batch export) both import it, so the
+rendering. `hist_tuner.py` (GUI preview) and `chains2hist.py` (batch export) both import it, so the
 preview is guaranteed to match the exported PNGs.
 
 - `INI_SCHEMA` — canonical layout. The column lives in `[Plot] column`; axis limits and `lag_peak`
@@ -59,7 +59,7 @@ preview is guaranteed to match the exported PNGs.
   `[Data] column_number` for the column, and to `DEFAULT_HIST_COLOR`/`DEFAULT_LINE_COLOR` for missing colors.
 - `plot_histogram(ax, column_data, cfg)` — the shared renderer; the caller owns figure creation/saving.
 - `histlib` must stay Python 2.7 compatible and must **not** import Tkinter at module level, so
-  `chains2hist.py` runs headless (it sets the `Agg` matplotlib backend). Tkinter lives only in `hist-tuner.py`.
+  `chains2hist.py` runs headless (it sets the `Agg` matplotlib backend). Tkinter lives only in `hist_tuner.py`.
 
 The GUI now persists `hist_color`/`line_color` to `[Style]`, and the batch reads them from there.
 

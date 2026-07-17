@@ -12,8 +12,8 @@ Original JAVELIN repository: https://github.com/nye17/javelin
 The full pipeline consists of 4 logical steps:
 
 1. 🧹 **`preparation.py`** — clean raw data and create the required folder structure.
-2. ⚙️ **`run-javelin.py`** — run batch computations (generate Markov chains).
-3. 🎨 **`hist-tuner.py`** — GUI tool for adjusting histogram appearance.
+2. ⚙️ **`run_javelin.py`** — run batch computations (generate Markov chains).
+3. 🎨 **`hist_tuner.py`** — GUI tool for adjusting histogram appearance.
 4. 📊 **`chains2hist.py`** — batch export of histogram plots (PNG) for all files.
 
 ---
@@ -49,7 +49,7 @@ docker run -it --rm -v "%cd%\mydata:/workspace" -w /workspace/object1/scripts -e
 - `--rm` — removes the container automatically when you exit, keeping your system clean.
 - `-v "%cd%\mydata:/workspace"` — mounts your local `mydata` folder as `/workspace` inside the container. _All file changes are saved on your PC._
 - `-w /workspace/object1/scripts` — opens the target working directory immediately after startup.
-- `-e DISPLAY=...` — allows Docker to send graphical windows (for `hist-tuner.py`) to your display.
+- `-e DISPLAY=...` — allows Docker to send graphical windows (for `hist_tuner.py`) to your display.
 
 > 💡 **Important for Windows:** To use the GUI, you need an X server running on your machine, such as **VcXsrv** or **Xming**, configured to accept connections (for example, with _Disable access control_ enabled).
 
@@ -122,12 +122,12 @@ n_iter = 50           # Number of generated output files (.jav)
 
 ---
 
-## 🚀 Step 3: Run batch computations (`run-javelin.py`)
+## 🚀 Step 3: Run batch computations (`run_javelin.py`)
 
 Once the `.dat` files are ready and the `.cfg` files are configured, start the computation:
 
 ```bash
-python2 run-javelin.py
+python2 run_javelin.py
 ```
 
 - The script will automatically find all `.cfg` files and process them one by one.
@@ -137,12 +137,12 @@ python2 run-javelin.py
 
 ---
 
-## 🎨 Step 4: Tune the histogram plots (`hist-tuner.py`)
+## 🎨 Step 4: Tune the histogram plots (`hist_tuner.py`)
 
 Use the GUI to fine-tune the appearance of your histograms:
 
 ```bash
-python2 hist-tuner.py
+python2 hist_tuner.py
 ```
 
 1. **Load data:** Click `Open chain` and select one representative `.jav` file.
@@ -187,8 +187,8 @@ After the full workflow, your project folder should look like this:
 📁 object1/
  ├── 📁 scripts/
  │    ├── preparation.py
- │    ├── run-javelin.py
- │    ├── hist-tuner.py
+ │    ├── run_javelin.py
+ │    ├── hist_tuner.py
  │    ├── chains2hist.py
  │    ├── histlib.py            <-- Shared hist.ini schema + plotting
  │    └── hist.ini              <-- Your saved plotting preset
